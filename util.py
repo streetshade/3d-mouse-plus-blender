@@ -1,7 +1,19 @@
-"Setting certain fields in blender and then reading back from them is not gaurenteed to give the same results"
+"Setting certain fields in blender and then reading back from them is not gauranteed to give the same results"
 
-from bpy.types import Object, PoseBone
-from mathutils import Matrix
+from bpy.types import Object, PoseBone, NDOFMotionEventData
+from mathutils import Matrix, Vector
+from dataclasses import dataclass
+from typing import Self
+
+
+@dataclass(slots=True, frozen=True)
+class NDOF:
+    rotation: Vector
+    translation: Vector
+
+    @staticmethod
+    def from_event(event: NDOFMotionEventData) -> Self:
+        return NDOF(event.rotation * event.time_delta * 1000., event.translation * event.time_delta)
 
 
 class MatrixMemo:

@@ -16,7 +16,6 @@
 import bpy
 from bpy.types import AddonPreferences, Context, SpaceView3D
 from bpy.props import BoolProperty, FloatProperty
-from .listener import SpnavMotionEvent
 from mathutils import Euler, Matrix, Vector
 
 
@@ -121,24 +120,24 @@ def get_preferred_active_view_rotation_matrix() -> Matrix:
     return matrix
 
 
-def apply_event_preferences(event: SpnavMotionEvent) -> SpnavMotionEvent:
-    prefs = get_prefs()
-    loc = list(event.translation)
-    rot = list(event.rotation)
+# def apply_event_preferences(event: SpnavMotionEvent) -> SpnavMotionEvent:
+#     prefs = get_prefs()
+#     loc = list(event.translation)
+#     rot = list(event.rotation)
 
-    for t, vec in (("translation", loc), ("rotate", rot)):
-        sensitivity = getattr(prefs, f"sensitivity_{t}")
-        for i, x in enumerate(vec):
-            vec[i] = x * sensitivity
-        for axis in "xyz":
-            prop = f"{t}_invert_{axis}"
-            index = "xyz".index(axis)
-            if getattr(prefs, prop):
-                vec[index] *= -1
-        for axes in ("xy", "xz", "yz"):
-            indices = tuple("xyz".index(axis) for axis in axes)
-            prop = f"{t}_flip_{axes[0]}_{axes[1]}"
-            if getattr(prefs, prop):
-                vec[indices[0]], vec[indices[1]] = vec[indices[1]], vec[indices[0]]
+#     for t, vec in (("translation", loc), ("rotate", rot)):
+#         sensitivity = getattr(prefs, f"sensitivity_{t}")
+#         for i, x in enumerate(vec):
+#             vec[i] = x * sensitivity
+#         for axis in "xyz":
+#             prop = f"{t}_invert_{axis}"
+#             index = "xyz".index(axis)
+#             if getattr(prefs, prop):
+#                 vec[index] *= -1
+#         for axes in ("xy", "xz", "yz"):
+#             indices = tuple("xyz".index(axis) for axis in axes)
+#             prop = f"{t}_flip_{axes[0]}_{axes[1]}"
+#             if getattr(prefs, prop):
+#                 vec[indices[0]], vec[indices[1]] = vec[indices[1]], vec[indices[0]]
 
-    return SpnavMotionEvent(loc, rot, event.period)
+#     return SpnavMotionEvent(loc, rot, event.period)

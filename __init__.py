@@ -17,7 +17,7 @@ bl_info = {
     "name" : "3DMousePlus",
     "author" : "Spencer Killen",
     "description" : "Transform objects with a 3DConnexion mouse",
-    "blender" : (2, 80, 0),
+    "blender" : (4, 5, 0),
     "version" : (0, 0, 3),
     "location" : "Select an object or pose bone and press a button on your 3D mouse",
     "warning" : "",
