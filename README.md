@@ -27,9 +27,9 @@ Replaces Blender's default 3D mouse viewport navigation with a simpler, decouple
 
 Orbit mode (Blender's "Object" navigation mode):
 - Push left/right: orbit left/right
-- Lift/press the cap: orbit up/down
+- Push forward/back: orbit up/down
 - Twist: roll the view clockwise/counter-clockwise (not around the object)
-- Push/pull: zoom in/out
+- Press down/lift up: zoom in/out
 - Tilting the cap does nothing. By default only the strongest axis moves the view at a time.
 
 Free fly mode is Blender's own "Fly" navigation mode.

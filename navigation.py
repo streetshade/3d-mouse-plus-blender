@@ -20,9 +20,9 @@ Two modes, switched with a button on the device:
 
 - Orbit (Blender's "Object" navigation mode): handled here.
     push left/right  -> orbit left/right around the view pivot
-    lift/press       -> orbit up/down around the view pivot
+    push forward/back-> orbit up/down around the view pivot (joystick up/down)
     twist            -> roll the view clockwise/counter-clockwise (not around the object)
-    push/pull        -> zoom in/out
+    press down/lift  -> zoom in/out
   Tilting the cap is ignored.
 - Free fly (Blender's "Fly" navigation mode): the event is passed through to
   Blender's own fly navigation.
@@ -104,24 +104,24 @@ class NDOFNavigate(Operator):
 
         side, lift, push = translation[0], translation[1], translation[2]
         twist = rotation[1]
-        channels = [side, lift, push, twist]
+        channels = [side, push, lift, twist]
         if prefs.nav_dominant_only:
             channels = _dominant_only(channels)
-        side, lift, push, twist = channels
+        side, push, lift, twist = channels
 
         if prefs.nav_debug:
             self.show_debug(context, translation, rotation, channels)
 
         sign = lambda inverted: -1.0 if inverted else 1.0
         yaw = side * sign(prefs.nav_invert_orbit_h) * prefs.nav_orbit_speed * dt
-        pitch = lift * sign(prefs.nav_invert_orbit_v) * prefs.nav_orbit_speed * dt
+        pitch = push * sign(prefs.nav_invert_orbit_v) * prefs.nav_orbit_speed * dt
         roll = -twist * sign(prefs.nav_invert_roll) * prefs.nav_roll_speed * dt
-        zoom = push * sign(prefs.nav_invert_zoom) * prefs.nav_zoom_speed * dt
+        zoom = -lift * sign(prefs.nav_invert_zoom) * prefs.nav_zoom_speed * dt
 
         if yaw or pitch or roll:
             rv3d.view_rotation = orbit_step(rv3d.view_rotation, yaw, pitch, roll, prefs.nav_turntable)
         if zoom:
-            # Positive push zooms in, matching Blender's own Object mode
+            # Pressing down zooms in, lifting zooms out
             rv3d.view_distance = max(1e-4, rv3d.view_distance * math.exp(-zoom))
 
         context.area.tag_redraw()
@@ -129,7 +129,7 @@ class NDOFNavigate(Operator):
 
     @staticmethod
     def show_debug(context: Context, translation, rotation, used):
-        text = "NDOF  t=({:+.2f} {:+.2f} {:+.2f})  r=({:+.2f} {:+.2f} {:+.2f})  used: side {:+.2f} lift {:+.2f} push {:+.2f} twist {:+.2f}".format(
+        text = "NDOF  t=({:+.2f} {:+.2f} {:+.2f})  r=({:+.2f} {:+.2f} {:+.2f})  used: side {:+.2f} push {:+.2f} lift {:+.2f} twist {:+.2f}".format(
             *translation, *rotation, *used
         )
         context.workspace.status_text_set(text)
