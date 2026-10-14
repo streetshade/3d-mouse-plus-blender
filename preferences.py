@@ -74,7 +74,62 @@ class Addon3DMousePlusPreferences(AddonPreferences):
     rotate_flip_x_z: BoolProperty("Rotate Flip X and Z", default=False, options=set())
     rotate_flip_y_z: BoolProperty("Rotate Flip Y and Z", default=False, options=set())
 
+    # Viewport navigation (navigation.py)
+    nav_orbit_speed: FloatProperty(
+        name="Orbit speed", min=0.0, soft_max=10.0, default=2.0,
+        description="Orbit rate at full deflection of the cap",
+    )
+    nav_roll_speed: FloatProperty(
+        name="Roll speed", min=0.0, soft_max=10.0, default=2.0,
+        description="View roll rate at full twist of the cap",
+    )
+    nav_zoom_speed: FloatProperty(
+        name="Zoom speed", min=0.0, soft_max=10.0, default=2.0,
+        description="Zoom rate at full push or pull of the cap",
+    )
+    nav_invert_orbit_h: BoolProperty(name="Invert left/right orbit", default=False)
+    nav_invert_orbit_v: BoolProperty(name="Invert up/down orbit", default=False)
+    nav_invert_roll: BoolProperty(name="Invert roll", default=False)
+    nav_invert_zoom: BoolProperty(name="Invert zoom", default=False)
+    nav_dominant_only: BoolProperty(
+        name="One axis at a time",
+        description="Only the strongest of left/right, up/down, push/pull and twist moves the view, "
+        "so a slightly sloppy push doesn't also roll or zoom",
+        default=True,
+    )
+    nav_turntable: BoolProperty(
+        name="Turntable orbit",
+        description="Left/right orbit turns around the world's vertical axis instead of the view's up axis",
+        default=True,
+    )
+    nav_center_on_orbit: BoolProperty(
+        name="Center selection when entering orbit mode", default=True
+    )
+    nav_frame_on_cycle: BoolProperty(
+        name="Center object when cycling", default=True
+    )
+    nav_debug: BoolProperty(
+        name="Show raw 3D mouse values",
+        description="Display the raw axis values in the status bar to help find the right invert settings",
+        default=False,
+    )
+
     def draw(self, context: Context):
+        box = self.layout.box()
+        box.label(text="Viewport navigation (orbit mode)")
+        for prop in ("nav_orbit_speed", "nav_roll_speed", "nav_zoom_speed"):
+            box.prop(self, prop)
+        row = box.row(heading="Invert")
+        for prop, text in (
+            ("nav_invert_orbit_h", "Left/Right"),
+            ("nav_invert_orbit_v", "Up/Down"),
+            ("nav_invert_roll", "Roll"),
+            ("nav_invert_zoom", "Zoom"),
+        ):
+            row.prop(self, prop, text=text)
+        for prop in ("nav_dominant_only", "nav_turntable", "nav_center_on_orbit", "nav_frame_on_cycle", "nav_debug"):
+            box.prop(self, prop)
+
         row = self.layout.row(heading="Use View Axes")
         for axis in "xyz":
             row.prop(self, f"use_view_axis_{axis}", text=axis.upper())
