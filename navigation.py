@@ -57,6 +57,17 @@ def _dominant_only(values: list[float]) -> list[float]:
     return [v if i == strongest else 0.0 for i, v in enumerate(values)]
 
 
+def _selection_center(context: Context) -> Vector | None:
+    "World-space center of the selected objects (or the active object)."
+    objects = list(context.selected_objects) or ([context.active_object] if context.active_object else [])
+    if not objects:
+        return None
+    total = Vector()
+    for obj in objects:
+        total += obj.matrix_world.translation
+    return total / len(objects)
+
+
 def orbit_step(rotation: Quaternion, yaw: float, pitch: float, roll: float, turntable: bool):
     """
     Rotate a view orientation (camera-to-world, as `RegionView3D.view_rotation`)
@@ -98,6 +109,11 @@ class NDOFNavigate(Operator):
             return {"PASS_THROUGH"}
 
         prefs = get_prefs()
+        if prefs.nav_lock_pivot:
+            # Orbit, roll and zoom always happen around the object, so it stays centered
+            center = _selection_center(context)
+            if center is not None:
+                rv3d.view_location = center
         motion = event.ndof_motion
         dt = min(motion.time_delta, MAX_TIME_DELTA)
         translation, rotation = motion.translation, motion.rotation
@@ -129,7 +145,7 @@ class NDOFNavigate(Operator):
 
     @staticmethod
     def show_debug(context: Context, translation, rotation, used):
-        text = "NDOF  t=({:+.2f} {:+.2f} {:+.2f})  r=({:+.2f} {:+.2f} {:+.2f})  used: side {:+.2f} push {:+.2f} lift {:+.2f} twist {:+.2f}".format(
+        text = "3DMousePlus active  t=({:+.2f} {:+.2f} {:+.2f})  r=({:+.2f} {:+.2f} {:+.2f})  used: side {:+.2f} push {:+.2f} lift {:+.2f} twist {:+.2f}".format(
             *translation, *rotation, *used
         )
         context.workspace.status_text_set(text)
@@ -224,7 +240,8 @@ def register():
     km = addon_kc.keymaps.new(name="3D View", space_type="VIEW_3D")
 
     items = [
-        km.keymap_items.new(NDOFNavigate.bl_idname, type="NDOF_MOTION", value="ANY"),
+        # head=True so this is checked before Blender's own NDOF navigation
+        km.keymap_items.new(NDOFNavigate.bl_idname, type="NDOF_MOTION", value="ANY", head=True),
         km.keymap_items.new(NDOFToggleMode.bl_idname, type="NDOF_BUTTON_3", value="PRESS"),
         km.keymap_items.new(NDOFCenterObject.bl_idname, type="NDOF_BUTTON_4", value="PRESS"),
     ]

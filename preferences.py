@@ -102,6 +102,11 @@ class Addon3DMousePlusPreferences(AddonPreferences):
         description="Left/right orbit turns around the world's vertical axis instead of the view's up axis",
         default=True,
     )
+    nav_lock_pivot: BoolProperty(
+        name="Keep selection centered",
+        description="Orbit, roll and zoom around the selected object, keeping it in the center of the view",
+        default=True,
+    )
     nav_center_on_orbit: BoolProperty(
         name="Center selection when entering orbit mode", default=True
     )
@@ -127,7 +132,7 @@ class Addon3DMousePlusPreferences(AddonPreferences):
             ("nav_invert_zoom", "Zoom"),
         ):
             row.prop(self, prop, text=text)
-        for prop in ("nav_dominant_only", "nav_turntable", "nav_center_on_orbit", "nav_frame_on_cycle", "nav_debug"):
+        for prop in ("nav_lock_pivot", "nav_dominant_only", "nav_turntable", "nav_center_on_orbit", "nav_frame_on_cycle", "nav_debug"):
             box.prop(self, prop)
 
         row = self.layout.row(heading="Use View Axes")
